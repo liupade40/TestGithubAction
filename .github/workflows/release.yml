@@ -1,35 +1,34 @@
 name: Build and Release
 
-# 触发条件：当代码推送到主分支（或者其他分支）时触发工作流
 on:
   push:
     branches:
-      - master  # 你也可以根据需要修改为其他分支
+      - master  # 当代码推送到 main 分支时触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 检出代码
+      # 步骤 1: 检出代码
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 设置 .NET SDK（如果是 ASP.NET Core 或其他 .NET 项目）
+      # 步骤 2: 设置 .NET SDK（如果是 ASP.NET Core 或其他 .NET 项目）
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0'  # 你可以修改为合适的 .NET 版本
+          dotnet-version: '8.0'
 
-      # 恢复项目依赖
+      # 步骤 3: 恢复项目依赖
       - name: Restore dependencies
         run: dotnet restore
 
-      # 构建项目
+      # 步骤 4: 构建项目
       - name: Build project
         run: dotnet build --configuration Release --no-restore
 
-      # 发布项目（打包输出）
+      # 步骤 5: 发布项目（打包输出）
       - name: Publish project
         run: dotnet publish --configuration Release --no-build --output ./publish
 
@@ -38,19 +37,31 @@ jobs:
     needs: build  # 确保 release 任务在 build 任务成功后执行
 
     steps:
-      # 检出代码
+      # 步骤 1: 检出代码
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 使用 GitHub API 创建 Release
+      # 步骤 2: 获取当前提交的 Git 标签
+      - name: Get current version (Git tag)
+        id: get_version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0)
+          if [ -z "$VERSION" ]; then
+            VERSION="v1.0.${GITHUB_RUN_NUMBER}"  # 如果没有标签，则使用默认版本
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # 步骤 3: 创建 GitHub Release
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}  # 使用当前的 Git 标签作为 Release 的标签
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动提供的令牌
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 上传发布的文件到 GitHub Release
+      # 步骤 4: 上传发布的文件到 GitHub Release
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
-          files: ./publish/*  # 指定要上传的文件路径，按需修改
+          files: ./publish/*  # 上传发布的文件（你可以修改路径或文件类型）
