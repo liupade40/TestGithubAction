@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - master  # 当代码推送到 main 分支时触发
+      - master  # 当代码推送到 master 分支时触发
 
 jobs:
   build:
@@ -67,7 +67,7 @@ jobs:
         run: ls -R ./publish  # 用于调试，确保文件存在
 
       - name: Upload release assets
-        uses: actions/upload-release-asset@v2  # 使用 v2
+        uses: actions/upload-release-asset@v1  # 使用 v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./publish/your_project.zip  # 替换为实际的文件路径
