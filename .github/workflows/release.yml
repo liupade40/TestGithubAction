@@ -28,10 +28,9 @@ jobs:
       - name: Build project
         run: dotnet build --configuration Release --no-restore
 
-      # 步骤 5: 发布项目（打包输出）
+      # 步骤 5: 发布项目（打包输出）并列出文件
       - name: Publish project
         run: |
-          pwd  # 打印当前工作目录
           dotnet publish --configuration Release --no-build --output ./publish
           ls -R ./publish  # 列出 publish 目录中的文件，用于调试
 
@@ -63,13 +62,13 @@ jobs:
           release_name: Release ${{ env.VERSION }}
           body: Release description here
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # 使用自定义的 RELEASE_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 提供的默认令牌
 
       # 步骤 4: 上传发布的文件到 GitHub Release
       - name: Upload release assets
-        uses: actions/upload-release-asset@v1  # 使用 v1
+        uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish/your_project.zip  # 替换为实际的文件路径
-          asset_name: your_project.zip  # 替换为你想要显示的文件名
-          asset_content_type: application/zip  # 根据文件类型设置正确的 content type
+          asset_path: ./publish/your_project.dll  # 替换为实际的文件路径和文件名
+          asset_name: your_project.dll  # 替换为你想要显示的文件名
+          asset_content_type: application/octet-stream  # 根据文件类型设置正确的 content type
