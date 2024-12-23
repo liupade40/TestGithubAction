@@ -4,7 +4,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - main  # 你也可以根据需要修改为其他分支
+      - master  # 你也可以根据需要修改为其他分支
 
 jobs:
   build:
