@@ -41,28 +41,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 步骤 2: 获取当前版本（Git 标签）
-      - name: Get current version (Git tag)
+      # 步骤 2: 获取当前版本（Git 标签或 Git 提交哈希）
+      - name: Get current version (Git tag or commit sha)
         id: get_version
         run: |
-          # 尝试获取当前标签
           VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           if [ -z "$VERSION" ]; then
-            VERSION="v1.0.${GITHUB_RUN_NUMBER}"  # 如果没有标签，则使用默认版本
+            VERSION="commit-${GITHUB_SHA}"
           fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV  # 设置环境变量
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # 步骤 3: 创建 GitHub Release
       - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         with:
-          tag_name: ${{ env.VERSION }}  # 使用当前的 Git 标签作为 Release 的标签
+          tag_name: ${{ env.VERSION }}  # 使用当前的 Git 标签或提交哈希作为 Release 的标签
+          release_name: Release ${{ env.VERSION }}
+          body: Release description here
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # 使用自定义的 RELEASE_TOKEN
 
       # 步骤 4: 上传发布的文件到 GitHub Release
       - name: Upload release assets
-        uses: softprops/action-gh-release@v1
+        uses: actions/upload-release-asset@v1
         with:
-          files: ./publish/*  # 上传发布的文件（你可以修改路径或文件类型）
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./publish/*
+          asset_name: your_asset_name
+          asset_content_type: application/octet-stream
