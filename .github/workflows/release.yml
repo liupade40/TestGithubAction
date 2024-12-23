@@ -69,6 +69,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish/your_project.dll  # 替换为实际的文件路径和文件名
-          asset_name: your_project.dll  # 替换为你想要显示的文件名
+          asset_path: ./publish/ConsoleApp47.dll  # 替换为实际的文件路径和文件名
+          asset_name: ConsoleApp47.dll  # 替换为你想要显示的文件名
           asset_content_type: application/octet-stream  # 根据文件类型设置正确的 content type
