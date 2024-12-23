@@ -63,10 +63,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # 使用自定义的 RELEASE_TOKEN
 
       # 步骤 4: 上传发布的文件到 GitHub Release
+      - name: List files in the publish directory
+        run: ls -R ./publish  # 用于调试，确保文件存在
+
       - name: Upload release assets
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@v2  # 使用 v2
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish/*
-          asset_name: your_asset_name
-          asset_content_type: application/octet-stream
+          asset_path: ./publish/your_project.zip  # 替换为实际的文件路径
+          asset_name: your_project.zip  # 替换为你想要显示的文件名
+          asset_content_type: application/zip  # 根据文件类型设置正确的 content type
